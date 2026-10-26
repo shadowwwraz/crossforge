@@ -124,3 +124,30 @@ export const CATEGORIES: Category[] = [
   'Neon',
   'Classic',
 ];
+
+export interface SquadMember {
+  id: string;
+  nickname: string;
+  avatarColor: string;
+  spec: CrosshairSpec;
+  isHost?: boolean;
+  status: 'online' | 'away' | 'offline';
+  isLocal?: boolean;
+}
+
+export type SquadMessageType =
+  | 'SYNC_STATE'
+  | 'OFFER_CROSSHAIR'
+  | 'OFFER_ACCEPT'
+  | 'OFFER_DECLINE'
+  | 'PEER_LEAVE';
+
+export interface SquadMessage {
+  type: SquadMessageType;
+  senderId: string;
+  senderName: string;
+  targetId?: string;
+  spec?: CrosshairSpec;
+  avatarColor?: string;
+  timestamp?: number;
+}

@@ -13,7 +13,7 @@
     "start": "electron .",
     "dist": "npm run build && electron-builder --win nsis --x64",
     "dist:dir": "npm run build && electron-builder --win dir --x64",
-    "test": "node --test tests/i18n.test.ts",
+    "test": "node --test tests/i18n.test.ts tests/squad.test.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.electron.json --noEmit"
   },
   "dependencies": {
