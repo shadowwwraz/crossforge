@@ -2704,30 +2704,86 @@ input[type='range'].slider:hover::-webkit-slider-thumb {
   color: var(--accent);
 }
 
-.squad-demo-notice {
-  margin: 0 12px 10px 12px;
-  padding: 8px 10px;
-  border-radius: 6px;
-  background: rgba(139, 107, 255, 0.08);
-  border: 1px solid rgba(139, 107, 255, 0.2);
+.squad-waiting-card {
+  margin: 8px 0;
+  padding: 14px 12px;
+  border-radius: 8px;
+  background: rgba(198, 255, 61, 0.04);
+  border: 1px dashed rgba(198, 255, 61, 0.3);
+  text-align: center;
 }
 
-.squad-demo-notice p {
-  margin: 4px 0 0 0;
-  font-size: 10px;
-  color: var(--text-dim);
-  line-height: 1.4;
-}
-
-.squad-badge-pill {
-  display: inline-block;
-  background: #10B981;
-  color: #fff;
-  font-size: 9px;
+.squad-waiting-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
   font-weight: 700;
-  padding: 1px 6px;
-  border-radius: 10px;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.squad-waiting-desc {
+  margin: 0 0 10px 0;
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.45;
+}
+
+.squad-code-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #08080a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.squad-code-display:hover {
+  border-color: var(--accent);
+  background: rgba(198, 255, 61, 0.06);
+}
+
+.squad-code-display code {
+  font-family: var(--font-mono, monospace);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+.squad-code-copy-hint {
+  font-size: 9.5px;
+  color: var(--text-mute);
+  margin-top: 3px;
+}
+
+.squad-inline-join-form {
+  padding: 4px 0;
+  animation: squadFadeIn 0.15s ease-out;
+}
+
+.squad-join-input {
+  flex: 1;
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  background: #08080a !important;
+  color: #ece9e0 !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 6px !important;
+  padding: 6px 10px !important;
+}
+
+.squad-join-input:focus {
+  border-color: var(--accent) !important;
+  outline: none !important;
 }
 
 .squad-footer {

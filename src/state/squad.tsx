@@ -18,13 +18,10 @@ interface SquadContextValue {
   members: SquadMember[];
   lobbyCode: string | null;
   isHost: boolean;
-  joinModalOpen: boolean;
   incomingOffer: { senderName: string; spec: CrosshairSpec } | null;
   openSquad: () => void;
   closeSquad: () => void;
   toggleSquad: () => void;
-  openJoinModal: () => void;
-  closeJoinModal: () => void;
   createLobby: () => Promise<string>;
   joinLobby: (code: string) => Promise<void>;
   leaveLobby: () => void;
@@ -40,7 +37,6 @@ const SquadContext = createContext<SquadContextValue | null>(null);
 export function SquadProvider({ children }: { children: ReactNode }) {
   const { state, applySpec, toast, t } = useApp();
   const [isOpen, setIsOpen] = useState(false);
-  const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [lobbyCode, setLobbyCode] = useState<string | null>(null);
   const [isHost, setIsHost] = useState(false);
   const [incomingOffer, setIncomingOffer] = useState<{
@@ -62,7 +58,6 @@ export function SquadProvider({ children }: { children: ReactNode }) {
       onConnected: (code) => {
         setLobbyCode(code);
         setIsHost(service.getIsHost());
-        toast(t('squad.connected', { code }), 'green');
       },
       onDisconnected: () => {
         setLobbyCode(null);
@@ -75,7 +70,7 @@ export function SquadProvider({ children }: { children: ReactNode }) {
         toast(err, 'default');
       },
     });
-  }, [service, toast, t]);
+  }, [service, toast]);
 
   // Keep squad service updated when local crosshair changes in the app
   useEffect(() => {
@@ -83,12 +78,6 @@ export function SquadProvider({ children }: { children: ReactNode }) {
       service.updateLocalSpec(state.current);
     }
   }, [service, state.current]);
-
-  const openSquad = useCallback(() => setIsOpen(true), []);
-  const closeSquad = useCallback(() => setIsOpen(false), []);
-  const toggleSquad = useCallback(() => setIsOpen((prev) => !prev), []);
-  const openJoinModal = useCallback(() => setJoinModalOpen(true), []);
-  const closeJoinModal = useCallback(() => setJoinModalOpen(false), []);
 
   const createLobby = useCallback(async () => {
     const code = await service.createLobby();
@@ -99,17 +88,45 @@ export function SquadProvider({ children }: { children: ReactNode }) {
     return code;
   }, [service, toast, t]);
 
+  const openSquad = useCallback(() => {
+    setIsOpen(true);
+    if (!service.getLobbyCode()) {
+      void service.createLobby().then((code) => {
+        setLobbyCode(code);
+        setIsHost(true);
+      });
+    }
+  }, [service]);
+
+  const closeSquad = useCallback(() => setIsOpen(false), []);
+
+  const toggleSquad = useCallback(() => {
+    setIsOpen((prev) => {
+      const next = !prev;
+      if (next && !service.getLobbyCode()) {
+        void service.createLobby().then((code) => {
+          setLobbyCode(code);
+          setIsHost(true);
+        });
+      }
+      return next;
+    });
+  }, [service]);
+
   const joinLobby = useCallback(
     async (code: string) => {
       try {
         await service.joinLobby(code);
-        setJoinModalOpen(false);
+        setLobbyCode(code.trim().toUpperCase());
+        setIsHost(false);
+        toast(t('squad.connected', { code: code.trim().toUpperCase() }), 'green');
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
         toast(msg, 'default');
+        throw err;
       }
     },
-    [service, toast],
+    [service, toast, t],
   );
 
   const leaveLobby = useCallback(() => {
@@ -165,13 +182,10 @@ export function SquadProvider({ children }: { children: ReactNode }) {
       members,
       lobbyCode,
       isHost,
-      joinModalOpen,
       incomingOffer,
       openSquad,
       closeSquad,
       toggleSquad,
-      openJoinModal,
-      closeJoinModal,
       createLobby,
       joinLobby,
       leaveLobby,
@@ -186,13 +200,10 @@ export function SquadProvider({ children }: { children: ReactNode }) {
       members,
       lobbyCode,
       isHost,
-      joinModalOpen,
       incomingOffer,
       openSquad,
       closeSquad,
       toggleSquad,
-      openJoinModal,
-      closeJoinModal,
       createLobby,
       joinLobby,
       leaveLobby,

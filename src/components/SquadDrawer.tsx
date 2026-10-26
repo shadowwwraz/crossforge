@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useSquad } from '../state/squad';
 import { useApp } from '../state/app';
 import { CrosshairCanvas } from './CrosshairCanvas';
@@ -13,7 +13,7 @@ export function SquadDrawer() {
     isHost,
     createLobby,
     copyLobbyCode,
-    openJoinModal,
+    joinLobby,
     leaveLobby,
     equipMemberCrosshair,
     sendMyCrosshair,
@@ -24,6 +24,10 @@ export function SquadDrawer() {
   const { t } = useApp();
   const drawerRef = useRef<HTMLDivElement | null>(null);
 
+  const [joinOpen, setJoinOpen] = useState(false);
+  const [joinCode, setJoinCode] = useState('');
+  const [connecting, setConnecting] = useState(false);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -33,6 +37,21 @@ export function SquadDrawer() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, closeSquad]);
+
+  const handleJoin = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!joinCode.trim()) return;
+    setConnecting(true);
+    try {
+      await joinLobby(joinCode.trim().toUpperCase());
+      setJoinCode('');
+      setJoinOpen(false);
+    } catch {
+      // Error toasted in service
+    } finally {
+      setConnecting(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -180,38 +199,76 @@ export function SquadDrawer() {
               </div>
             );
           })}
-        </div>
 
-        {/* Demo Notice */}
-        {!lobbyCode ? (
-          <div className="squad-demo-notice">
-            <span className="squad-badge-pill">PC Gamers</span>
-            <p>{t('squad.demoNotice')}</p>
-          </div>
-        ) : null}
+          {/* Waiting for friends state */}
+          {members.length === 1 && lobbyCode ? (
+            <div className="squad-waiting-card">
+              <div className="squad-waiting-title">
+                <Users size={14} style={{ color: 'var(--accent)' }} />
+                <span>Ожидание друзей...</span>
+              </div>
+              <p className="squad-waiting-desc">
+                Отправьте этот код другу, чтобы он подключился к вашему лобби в реальном времени:
+              </p>
+              <div className="squad-code-display" onClick={copyLobbyCode}>
+                <code>{lobbyCode}</code>
+                <span className="squad-code-copy-hint">нажмите, чтобы скопировать</span>
+              </div>
+            </div>
+          ) : null}
+        </div>
 
         {/* Footer Actions */}
         <div className="squad-footer">
           <button
             type="button"
             className="btn btn-primary squad-invite-btn"
-            onClick={lobbyCode ? copyLobbyCode : createLobby}
+            onClick={copyLobbyCode}
           >
             <Users size={14} />
             {t('squad.invite')}
           </button>
 
-          <div className="flex" style={{ gap: 8, width: '100%' }}>
-            <button
-              type="button"
-              className="btn btn-outline"
-              style={{ flex: 1 }}
-              onClick={openJoinModal}
-            >
-              <Plus size={13} />
-              {t('squad.join')}
-            </button>
-            {lobbyCode ? (
+          {/* Inline Join Squad Form */}
+          {joinOpen ? (
+            <form onSubmit={handleJoin} className="squad-inline-join-form">
+              <div className="flex" style={{ gap: 6, width: '100%' }}>
+                <input
+                  type="text"
+                  className="input squad-join-input"
+                  placeholder="CF-XXXX"
+                  value={joinCode}
+                  onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                  maxLength={10}
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  className="btn btn-sm btn-primary"
+                  disabled={!joinCode.trim() || connecting}
+                >
+                  {connecting ? '...' : t('common.apply')}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-sm"
+                  onClick={() => setJoinOpen(false)}
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="flex" style={{ gap: 8, width: '100%' }}>
+              <button
+                type="button"
+                className="btn btn-outline"
+                style={{ flex: 1 }}
+                onClick={() => setJoinOpen(true)}
+              >
+                <Plus size={13} />
+                {t('squad.join')}
+              </button>
               <button
                 type="button"
                 className="btn btn-outline"
@@ -220,8 +277,8 @@ export function SquadDrawer() {
               >
                 {t('squad.leave')}
               </button>
-            ) : null}
-          </div>
+            </div>
+          )}
         </div>
       </aside>
     </>

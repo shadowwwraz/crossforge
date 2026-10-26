@@ -1,6 +1,5 @@
-import { Peer, type DataConnection } from 'peerjs';
 import type { CrosshairSpec, SquadMember, SquadMessage } from '../../shared/types';
-import { DEMO_SQUAD_MEMBERS, generateLobbyCode, isValidLobbyCode } from '../../shared/squad';
+import { generateLobbyCode, isValidLobbyCode } from '../../shared/squad';
 import { normalizeSpec } from '../../shared/spec';
 
 export interface SquadServiceCallbacks {
@@ -12,18 +11,20 @@ export interface SquadServiceCallbacks {
 }
 
 export class SquadService {
-  private peer: Peer | null = null;
-  private connections: Map<string, DataConnection> = new Map();
-  private callbacks: SquadServiceCallbacks = {};
-
+  private ws: WebSocket | null = null;
   private lobbyCode: string | null = null;
   private isHost: boolean = false;
   private localMember: SquadMember;
   private remoteMembers: Map<string, SquadMember> = new Map();
+  private lastSeen: Map<string, number> = new Map();
+  private callbacks: SquadServiceCallbacks = {};
+  private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+  private checkInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(localNickname: string = 'You', localColor: string = '#8B5CF6') {
+    const randomId = 'usr_' + Math.random().toString(36).substring(2, 9);
     this.localMember = {
-      id: 'local-user',
+      id: randomId,
       nickname: localNickname,
       avatarColor: localColor,
       status: 'online',
@@ -64,34 +65,34 @@ export class SquadService {
 
   public updateLocalSpec(spec: CrosshairSpec): void {
     this.localMember.spec = spec;
-    this.broadcastMessage({
-      type: 'SYNC_STATE',
-      senderId: this.localMember.id,
-      senderName: this.localMember.nickname,
-      avatarColor: this.localMember.avatarColor,
-      spec: this.localMember.spec,
-    });
+    if (this.lobbyCode) {
+      this.publish({
+        type: 'SYNC_STATE',
+        senderId: this.localMember.id,
+        senderName: this.localMember.nickname,
+        avatarColor: this.localMember.avatarColor,
+        spec: this.localMember.spec,
+      });
+    }
     this.emitMembers();
   }
 
   public updateLocalProfile(nickname: string, color: string): void {
     this.localMember.nickname = nickname;
     this.localMember.avatarColor = color;
-    this.broadcastMessage({
-      type: 'SYNC_STATE',
-      senderId: this.localMember.id,
-      senderName: this.localMember.nickname,
-      avatarColor: this.localMember.avatarColor,
-      spec: this.localMember.spec,
-    });
+    if (this.lobbyCode) {
+      this.publish({
+        type: 'SYNC_STATE',
+        senderId: this.localMember.id,
+        senderName: this.localMember.nickname,
+        avatarColor: this.localMember.avatarColor,
+        spec: this.localMember.spec,
+      });
+    }
     this.emitMembers();
   }
 
   public getMembers(): SquadMember[] {
-    if (!this.lobbyCode) {
-      // In standalone / demo mode, return local user + 5 authentic demo squad members
-      return [this.localMember, ...DEMO_SQUAD_MEMBERS];
-    }
     return [this.localMember, ...Array.from(this.remoteMembers.values())];
   }
 
@@ -106,58 +107,52 @@ export class SquadService {
   public async createLobby(): Promise<string> {
     this.leaveLobby();
     const code = generateLobbyCode();
-    this.lobbyCode = code;
     this.isHost = true;
     this.localMember.isHost = true;
-
-    const peerId = this.codeToPeerId(code);
-    await this.initPeer(peerId);
-    this.callbacks.onConnected?.(code);
-    this.emitMembers();
+    await this.connectToRoom(code);
     return code;
   }
 
   public async joinLobby(code: string): Promise<void> {
     if (!isValidLobbyCode(code)) {
-      throw new Error('Invalid lobby code format');
+      throw new Error('Неверный формат кода сквада (ожидается CF-XXXX)');
     }
     this.leaveLobby();
     const cleanCode = code.trim().toUpperCase();
-    this.lobbyCode = cleanCode;
     this.isHost = false;
     this.localMember.isHost = false;
-
-    await this.initPeer(); // Random client peer ID
-    const hostPeerId = this.codeToPeerId(cleanCode);
-    const conn = this.peer!.connect(hostPeerId, {
-      reliable: true,
-      metadata: {
-        nickname: this.localMember.nickname,
-        avatarColor: this.localMember.avatarColor,
-      },
-    });
-
-    this.setupConnection(conn);
-    this.callbacks.onConnected?.(cleanCode);
-    this.emitMembers();
+    await this.connectToRoom(cleanCode);
   }
 
   public leaveLobby(): void {
-    if (this.peer) {
+    if (this.lobbyCode) {
+      this.publish({
+        type: 'PEER_LEAVE',
+        senderId: this.localMember.id,
+        senderName: this.localMember.nickname,
+      });
+    }
+
+    if (this.heartbeatTimer) {
+      clearInterval(this.heartbeatTimer);
+      this.heartbeatTimer = null;
+    }
+    if (this.checkInterval) {
+      clearInterval(this.checkInterval);
+      this.checkInterval = null;
+    }
+
+    if (this.ws) {
       try {
-        this.broadcastMessage({
-          type: 'PEER_LEAVE',
-          senderId: this.localMember.id,
-          senderName: this.localMember.nickname,
-        });
-        this.peer.destroy();
+        this.ws.close();
       } catch {
         // Ignored
       }
-      this.peer = null;
+      this.ws = null;
     }
-    this.connections.clear();
+
     this.remoteMembers.clear();
+    this.lastSeen.clear();
     this.lobbyCode = null;
     this.isHost = false;
     this.localMember.isHost = false;
@@ -166,87 +161,138 @@ export class SquadService {
   }
 
   public sendOffer(targetMemberId: string): void {
-    if (!this.lobbyCode) {
-      // Simulated demo squad send
-      return;
-    }
-
-    const targetConn = this.connections.get(targetMemberId);
-    if (targetConn && targetConn.open) {
-      targetConn.send({
-        type: 'OFFER_CROSSHAIR',
-        senderId: this.localMember.id,
-        senderName: this.localMember.nickname,
-        targetId: targetMemberId,
-        spec: this.localMember.spec,
-      } as SquadMessage);
-    }
+    if (!this.lobbyCode) return;
+    this.publish({
+      type: 'OFFER_CROSSHAIR',
+      senderId: this.localMember.id,
+      senderName: this.localMember.nickname,
+      targetId: targetMemberId,
+      spec: this.localMember.spec,
+    });
   }
 
-  private codeToPeerId(code: string): string {
+  private codeToTopic(code: string): string {
     const sanitized = code.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return `crossforge-squad-${sanitized}`;
+    return `crossforge_squad_${sanitized}`;
   }
 
-  private initPeer(id?: string): Promise<void> {
-    return new Promise((resolve) => {
-      this.peer = id ? new Peer(id) : new Peer();
+  private async connectToRoom(code: string): Promise<void> {
+    this.lobbyCode = code;
+    const topic = this.codeToTopic(code);
+    const wsUrl = `wss://ntfy.sh/${topic}/ws`;
 
-      this.peer.on('open', (assignedId) => {
-        this.localMember.id = assignedId;
-        resolve();
-      });
+    return new Promise((resolve, reject) => {
+      let isResolved = false;
+      try {
+        this.ws = new WebSocket(wsUrl);
 
-      this.peer.on('connection', (conn) => {
-        this.setupConnection(conn);
-      });
+        this.ws.onopen = () => {
+          if (!isResolved) {
+            isResolved = true;
+            this.callbacks.onConnected?.(code);
+            resolve();
+          }
 
-      this.peer.on('error', (err) => {
-        this.callbacks.onError?.(err.message || 'Connection error');
-      });
+          // Greet lobby with my presence
+          this.publish({
+            type: 'SYNC_STATE',
+            senderId: this.localMember.id,
+            senderName: this.localMember.nickname,
+            avatarColor: this.localMember.avatarColor,
+            spec: this.localMember.spec,
+          });
+
+          // Start heartbeat every 6 seconds
+          this.heartbeatTimer = setInterval(() => {
+            this.publish({
+              type: 'SYNC_STATE',
+              senderId: this.localMember.id,
+              senderName: this.localMember.nickname,
+              avatarColor: this.localMember.avatarColor,
+              spec: this.localMember.spec,
+            });
+          }, 6000);
+
+          // Check for stale peers every 4 seconds
+          this.checkInterval = setInterval(() => {
+            const now = Date.now();
+            let changed = false;
+            for (const [id, seen] of this.lastSeen.entries()) {
+              if (now - seen > 16000) {
+                this.remoteMembers.delete(id);
+                this.lastSeen.delete(id);
+                changed = true;
+              }
+            }
+            if (changed) this.emitMembers();
+          }, 4000);
+        };
+
+        this.ws.onmessage = (event) => {
+          try {
+            const payload = JSON.parse(event.data);
+            if (payload.event === 'message' && payload.message) {
+              const msg: SquadMessage = JSON.parse(payload.message);
+              this.handleMessage(msg);
+            }
+          } catch {
+            // Ignore non-json system ping
+          }
+        };
+
+        this.ws.onerror = (err) => {
+          if (!isResolved) {
+            isResolved = true;
+            reject(new Error('Не удалось подключиться к серверу лобби'));
+          } else {
+            this.callbacks.onError?.('Сбой соединения со сквадом');
+          }
+        };
+
+        this.ws.onclose = () => {
+          if (this.lobbyCode) {
+            this.callbacks.onDisconnected?.();
+          }
+        };
+      } catch (err: unknown) {
+        if (!isResolved) {
+          isResolved = true;
+          reject(err);
+        }
+      }
     });
   }
 
-  private setupConnection(conn: DataConnection): void {
-    conn.on('open', () => {
-      this.connections.set(conn.peer, conn);
-      // Greet peer with current state
-      conn.send({
-        type: 'SYNC_STATE',
-        senderId: this.localMember.id,
-        senderName: this.localMember.nickname,
-        avatarColor: this.localMember.avatarColor,
-        spec: this.localMember.spec,
-      } as SquadMessage);
-    });
+  private publish(msg: SquadMessage): void {
+    if (!this.lobbyCode) return;
+    const topic = this.codeToTopic(this.lobbyCode);
+    const postUrl = `https://ntfy.sh/${topic}`;
 
-    conn.on('data', (data) => {
-      this.handleIncomingMessage(conn.peer, data as SquadMessage);
-    });
-
-    conn.on('close', () => {
-      this.connections.delete(conn.peer);
-      this.remoteMembers.delete(conn.peer);
-      this.emitMembers();
-    });
-
-    conn.on('error', () => {
-      this.connections.delete(conn.peer);
-      this.remoteMembers.delete(conn.peer);
-      this.emitMembers();
+    fetch(postUrl, {
+      method: 'POST',
+      body: JSON.stringify(msg),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).catch(() => {
+      // Network retry ignored
     });
   }
 
-  private handleIncomingMessage(peerId: string, msg: SquadMessage): void {
+  private handleMessage(msg: SquadMessage): void {
     if (!msg || typeof msg !== 'object') return;
+    // Don't process our own broadcast
+    if (msg.senderId === this.localMember.id) return;
+
+    this.lastSeen.set(msg.senderId, Date.now());
 
     switch (msg.type) {
       case 'SYNC_STATE': {
         if (msg.spec) {
           const safeSpec = normalizeSpec(msg.spec);
           if (safeSpec) {
-            this.remoteMembers.set(peerId, {
-              id: peerId,
+            this.remoteMembers.set(msg.senderId, {
+              id: msg.senderId,
               nickname: msg.senderName || 'Player',
               avatarColor: msg.avatarColor || '#38BDF8',
               status: 'online',
@@ -258,12 +304,12 @@ export class SquadService {
         break;
       }
       case 'OFFER_CROSSHAIR': {
-        if (msg.spec) {
+        if (msg.targetId === this.localMember.id && msg.spec) {
           const safeSpec = normalizeSpec(msg.spec);
           if (safeSpec) {
             this.callbacks.onOfferReceived?.({
-              senderId: msg.senderId || peerId,
-              senderName: msg.senderName || 'Teammate',
+              senderId: msg.senderId,
+              senderName: msg.senderName || 'Тиммейт',
               spec: safeSpec,
             });
           }
@@ -271,18 +317,10 @@ export class SquadService {
         break;
       }
       case 'PEER_LEAVE': {
-        this.connections.delete(peerId);
-        this.remoteMembers.delete(peerId);
+        this.remoteMembers.delete(msg.senderId);
+        this.lastSeen.delete(msg.senderId);
         this.emitMembers();
         break;
-      }
-    }
-  }
-
-  private broadcastMessage(msg: SquadMessage): void {
-    for (const conn of this.connections.values()) {
-      if (conn.open) {
-        conn.send(msg);
       }
     }
   }
