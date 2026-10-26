@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Safety](https://img.shields.io/badge/Anti--Cheat-Safe%20(No%20Hooks)-success.svg)](#anti-cheat--safety)
 
-[**Download Latest Installer (.exe)**](https://github.com/shadowwwraz/crossforge/releases/tag/v0.2.0) • [Features](#key-features) • [Squad Feature](#-squad-multiplayer-lobbies-new) • [FAQ](#anti-cheat--safety) • [Русское описание](#описание-на-русском)
+[**Download Latest Installer (.exe)**](https://github.com/shadowwwraz/crossforge/releases) • [Features](#key-features) • [Squad Feature](#-squad-multiplayer-lobbies) • [FAQ](#anti-cheat--safety) • [Русское описание](#описание-на-русском)
 
 </div>
 
@@ -79,13 +79,30 @@ Every crosshair is mathematically generated from geometric primitives:
 
 ---
 
-## Installation & Download
+## Quick Start (Development)
 
-1. Download the latest release from the **[Releases](https://github.com/shadowwwraz/crossforge/releases/tag/v0.2.0)** page:
-   - **`CrossForge-Setup-0.2.0.exe`** — Windows Installer (recommended)
-   - **`CrossForge-Portable-v0.2.0.zip`** — Portable standalone version (no install required)
-2. Run the application.
-3. Choose or customize your reticle, press `Ctrl + Alt + X` (or `F8`) to toggle the overlay on/off, and jump into your game!
+```bash
+npm install
+npm run dev
+```
+
+`npm run dev` compiles the Electron main process, starts Vite on port 5273 and launches the app against the dev server.
+
+```bash
+npm run build      # main + renderer
+npm run start      # run the production build
+npm run dist       # NSIS installer -> release/CrossForge-Setup-<version>.exe
+npm run test       # test suite (node --test)
+npm run typecheck  # TypeScript check (main + renderer)
+```
+
+---
+
+## Installation
+
+1. Download **`CrossForge-Setup-0.2.0.exe`** (or portable **`CrossForge.exe`**) from the **[Releases](https://github.com/shadowwwraz/crossforge/releases)** page.
+2. Run the installer and launch CrossForge.
+3. Choose or customize your reticle, press `Ctrl + Alt + X` to toggle the overlay on/off, and jump into your game.
 
 > **Tip:** Ensure your game display mode is set to **Borderless Windowed** or **Windowed**. Exclusive Fullscreen mode bypasses standard desktop window composition.
 
