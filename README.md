@@ -1,88 +1,145 @@
-# CrossForge
+# CrossForge 🎯
 
-**Crosshair overlay for Windows.** Vector-crisp crosshairs, a click-through always-on-top
-overlay and a studio-grade designer — no game files touched, no memory hooks.
+<div align="center">
 
-Two themes (dark *Forge Lab*, light *Studio*) and two interface languages (English, Русский).
+![CrossForge Banner](docs/screenshot-discover.png)
 
-![Discover](docs/screenshot-discover.png)
+**Craft your perfect crosshair. Vector-crisp, click-through overlay for Windows with live Squad multiplayer.**
 
-## What's inside
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011-blue.svg)](#system-requirements)
+[![Release](https://img.shields.io/badge/Release-v0.2.0-brightgreen.svg)](https://github.com/shadowwwraz/crossforge/releases)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Safety](https://img.shields.io/badge/Anti--Cheat-Safe%20(No%20Hooks)-success.svg)](#anti-cheat--safety)
 
-- **Transparent overlay window** — always on top, click-through, one display at a time.
-- **Vector renderer** — every crosshair is drawn from shapes (`cross`, `dot`, `ring`,
-  `brackets`, `triangle`, `square`), so it stays sharp at any resolution and any DPI.
-- **Designer** — live preview with drag-to-position, size / offset steppers, per-layer
-  editing, colour + outline + opacity + glow, saved positions.
-- **18 bundled designs** with search, category filters, sorting and a randomizer.
-- **Global hotkeys** — toggle overlay, cycle designs, open designer, plus 1-px position
-  nudging with `Ctrl + Alt + arrows` (or numpad).
-- **Share codes and files** — base64 share codes and `.crossforge.json` export/import.
-- **Themes and languages** — dark and light palettes, English and Russian UI, switchable
-  in Settings or from the header.
-- **Local-first storage** — settings and designs live in `%APPDATA%\CrossForge`.
+[**Download Latest Installer (.exe)**](https://github.com/shadowwwraz/crossforge/releases) • [Features](#key-features) • [Squad Feature](#-squad-multiplayer-lobbies) • [FAQ](#anti-cheat--safety) • [Русское описание](#описание-на-русском)
 
-![Designer](docs/screenshot-editor.png)
-![Library](docs/screenshot-library.png)
-![Light theme](docs/screenshot-settings-light.png)
+</div>
 
-## Quick start (dev)
+---
+
+## Overview
+
+**CrossForge** is a modern, studio-grade crosshair overlay application engineered for competitive gamers and desktop enthusiasts. It projects a hardware-accelerated, transparent, and completely click-through vector reticle over any borderless or windowed application.
+
+Unlike legacy overlay software, CrossForge does **not** hook into game memory or modify binary game files, ensuring complete anti-cheat neutrality.
+
+---
+
+## Key Features
+
+### 👥 Squad Multiplayer Lobbies (NEW)
+- **Zero-Config Real-Time Lobbies**: Join up with friends instantly using 6-character room codes (`CF-XXXX`) without creating accounts.
+- **Live Crosshair Synchronization**: See teammates' active crosshairs, live online status, and avatars rendered in real time.
+- **1-Click Equip & Transfer**: Tap the magic wand `🪄` to equip your teammate's exact reticle or the send button `✈️` to push your crosshair design to a squad member.
+
+### 📐 Vector-Crisp Renderer
+Every crosshair is mathematically generated from geometric primitives:
+- **Shapes supported**: `Cross`, `Dot`, `Ring`, `Brackets`, `Triangle`, `Square`.
+- **Arbitrary DPI & Resolution**: Scales flawlessly from 1080p up to 4K+ without pixelation or blur.
+- **Customizable styling**: Per-layer offsets, gaps, length, thickness, rotation, color, glow, and outlines.
+
+### 🎨 Studio Designer
+- **Live Interactive Canvas**: Drag directly on the preview to adjust offsets in real time.
+- **Layer-by-Layer Stacking**: Combine multiple reticle components into intricate designs.
+- **Micro-Nudging**: Adjust crosshair position pixel-by-pixel using hotkeys (`Ctrl + Alt + Arrow Keys` or Numpad) even during gameplay.
+
+### ⚡ True Click-Through & System Performance
+- **Zero Mouse Latency & No Cursor Flicker**: Implements strict OS-level non-capturing transparent windows (`WS_EX_TRANSPARENT`), preventing Windows cursor redraw stutter.
+- **Display Affinity Protection**: Option to hide the crosshair from OBS, Discord stream, or Xbox Game Bar captures (`setContentProtection`).
+- **Tray Mode**: Minimizes cleanly to the system tray while keeping hotkeys and overlay active.
+
+### 📦 18 Competitive Presets & Sharing
+- Comes with 18 hand-crafted reticles tailored for tactical shooters, battle royales, and arena FPS.
+- Easily share configurations via concise Base64 share codes or `.crossforge.json` profile files.
+
+### 🌓 Dual Aesthetic & Localization
+- **Forge Lab (Dark)**: Deep graphite (`#08080A`) with vibrant neon lime (`#C6FF00`) and cyber cyan accents.
+- **Studio (Light)**: Warm archival paper aesthetic (`#F1EFE9`) with ink typography and indigo accents.
+- **Bilingual Interface**: Full native support for **English** and **Русский**, with automatic Windows locale detection.
+
+---
+
+## Screenshots
+
+<div align="center">
+
+### Squad Multiplayer Drawer
+![CrossForge Squad](docs/screenshot-squad.png)
+
+### Studio Designer
+![CrossForge Designer](docs/screenshot-editor.png)
+
+### Library & Discovery
+![Crosshair Library](docs/screenshot-library.png)
+
+### Light Theme (Studio)
+![Studio Light Theme](docs/screenshot-settings-light.png)
+
+</div>
+
+---
+
+## Quick Start (Development)
 
 ```bash
 npm install
 npm run dev
 ```
 
-`npm run dev` compiles the Electron main process, starts Vite on port 5273 and launches
-the app against the dev server.
+`npm run dev` compiles the Electron main process, starts Vite on port 5273 and launches the app against the dev server.
 
 ```bash
 npm run build      # main + renderer
 npm run start      # run the production build
 npm run dist       # NSIS installer -> release/CrossForge-Setup-<version>.exe
-npm run test       # i18n dictionary checks (node --test)
+npm run test       # test suite (node --test)
+npm run typecheck  # TypeScript check (main + renderer)
 ```
 
-## Where things live
+---
 
-| Area | Path |
-| --- | --- |
-| Main process, overlay window, hotkeys, tray | `electron/` |
-| Shared types, presets, share codes | `shared/` |
-| React UI | `src/` |
-| Design tokens and both themes | `src/styles/global.css` |
-| Crosshair renderer | `src/crosshair/render.ts` |
-| English / Russian dictionaries | `src/i18n/en.ts`, `src/i18n/ru.ts` |
-| Installer config | `electron-builder.yml` |
+## Installation
 
-## Localization
+1. Download **`CrossForge-Setup-0.2.0.exe`** (or portable **`CrossForge.exe`**) from the **[Releases](https://github.com/shadowwwraz/crossforge/releases)** page.
+2. Run the installer and launch CrossForge.
+3. Choose or customize your reticle, press `Ctrl + Alt + X` to toggle the overlay on/off, and jump into your game.
 
-- `Settings.language` is `en`, `ru` or `system` (follows the Windows display language).
-- `ru` is typed as `Record<MessageKey, string>`, so a missing key fails the build.
-- `npm run test` checks key coverage, empty values and `{placeholder}` parity.
+> **Tip:** Ensure your game display mode is set to **Borderless Windowed** or **Windowed**. Exclusive Fullscreen mode bypasses standard desktop window composition.
 
-## Overlay notes
+---
 
-- Works best with **borderless / windowed** games. Exclusive fullscreen bypasses every
-  desktop overlay, CrossForge included.
-- The close button sends CrossForge to the **system tray** — the overlay keeps working and
-  hotkeys stay registered. Quit from the tray menu. Launching the app again restores the
-  window instead of starting a second copy.
-- The overlay window is click-through and does not forward mouse moves, so it never
-  fights with the system cursor.
-- Designer → Position: nudge the crosshair with `Ctrl + Alt + arrows` while a game has
-  focus.
-- Recording / Streaming tab can hide the crosshair from OBS and Game Bar via Windows
-  display affinity (`setContentProtection`).
-- CrossForge never injects into game processes and never reads game memory. Tournament
-  and anti-cheat rules still apply — check the rules of the event you play in.
+## Anti-Cheat & Safety
 
-## Not wired up yet
+- **No Memory Reading/Injection:** CrossForge operates strictly in Windows user space as an independent top-level transparent overlay window.
+- **No DLL Hooking:** It does not interact with game executables, anti-cheat drivers (Vanguard, Easy Anti-Cheat, BattlEye, VAC), or Direct3D swap chains.
+- *Tournament Note:* While technologically equivalent to a hardware crosshair on a gaming monitor, always verify tournament-specific software guidelines before competing.
 
-Steam Workshop and the online community are intentionally stubbed in this build: the
-UI shows the destination, but publishing needs a backend. Share codes, file export and
-import all work offline.
+---
 
-## Stack
+## System Requirements
 
-Electron 33 · React 18 · TypeScript 5.7 · Vite 5 · electron-builder 25 (NSIS).
+- **OS**: Windows 10 (1903+) or Windows 11 (64-bit)
+- **Architecture**: x64
+- **Graphics**: Hardware-accelerated graphics support
+
+---
+
+## Описание на русском
+
+**CrossForge** — профессиональный оверлей прицелов для Windows с векторным рендерингом, нулевым инпут-лагом и поддержкой совместных комнат (Сквад).
+
+### Особенности:
+- **Мультиплеер Сквада (NEW):** Подключайтесь к друзьям по короткому коду лобби (`CF-XXXX`) без регистрации. Просматривайте прицелы тиммейтов в реальном времени, копируйте их в один клик волшебной палочкой `🪄` или отправляйте свои `✈️`.
+- **Векторная четкость:** Никаких мыльных растровых картинок — прицел собирается из математических примитивов и выглядит идеально на Full HD, 2K и 4K мониторах.
+- **Редактор геометрии:** Настройка слоёв, цветов, зазоров, толщины, свечения и контура.
+- **Click-Through без лагов:** Специальный режим окна Windows, не перехватывающий клики мыши и не вызывающий мерцания курсора.
+- **Защита стрима:** Функция скрытия оверлея от захвата в OBS, Discord и Game Bar.
+- **18 готовых пресетов:** Набор прицелов для соревновательных шутеров, импорт и экспорт настроек через код шеринга.
+- **Горячие клавиши:** Быстрое включение/выключение и смещение прицела на 1 пиксель прямо во время игры (`Ctrl + Alt + стрелки`).
+- **Интерфейс:** Полная поддержка русского языка и две проработанные темы оформления (тёмная *Forge Lab* и светлая *Studio*).
+
+---
+
+## License
+
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
