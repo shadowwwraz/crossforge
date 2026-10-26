@@ -7,11 +7,11 @@
 **Craft your perfect crosshair. Vector-crisp, click-through overlay for Windows.**
 
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011-blue.svg)](#system-requirements)
-[![Release](https://img.shields.io/badge/Release-v0.1.0-brightgreen.svg)](https://github.com/releases)
+[![Release](https://img.shields.io/badge/Release-v0.1.0-brightgreen.svg)](https://github.com/shadowwwraz/crossforge/releases)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Safety](https://img.shields.io/badge/Anti--Cheat-Safe%20(No%20Hooks)-success.svg)](#anti-cheat--safety)
 
-[**Download Latest Installer (.exe)**](https://github.com/releases/latest) • [Features](#features) • [FAQ](#anti-cheat--safety) • [Русское описание](#описание-на-русском)
+[**Download Latest Installer (.exe)**](https://github.com/shadowwwraz/crossforge/releases/download/v0.1.0/CrossForge-Setup-0.1.0.exe) • [Features](#features) • [FAQ](#anti-cheat--safety) • [Русское описание](#описание-на-русском)
 
 </div>
 
