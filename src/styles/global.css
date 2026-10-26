@@ -1600,8 +1600,9 @@ input[type='range'].slider:hover::-webkit-slider-thumb {
   padding: 8px;
   display: flex;
   gap: 6px;
+  align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, transparent, rgba(8, 9, 12, 0.94) 55%);
+  background: linear-gradient(180deg, transparent, rgba(8, 9, 12, 0.96) 60%);
   opacity: 0;
   transform: translateY(6px);
   transition: opacity 0.16s ease, transform 0.16s ease;
@@ -1616,9 +1617,30 @@ input[type='range'].slider:hover::-webkit-slider-thumb {
 .design-hover .btn {
   height: 28px;
   font-size: 11px;
-  flex: 1;
   border-color: rgba(236, 233, 222, 0.18);
   color: #ece9e0;
+}
+
+.design-hover .design-btn-use {
+  flex: 1;
+  min-width: 0;
+  padding: 0 10px;
+  gap: 6px;
+}
+
+.design-hover .design-btn-use span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.design-hover .design-btn-icon {
+  flex: 0 0 30px;
+  width: 30px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .design-hover .btn-accent {
@@ -1627,7 +1649,13 @@ input[type='range'].slider:hover::-webkit-slider-thumb {
 }
 
 .design-hover .btn-danger {
-  flex: 0 0 34px;
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+}
+
+.design-hover .btn-danger:hover {
+  background: color-mix(in srgb, var(--danger) 18%, transparent);
+  border-color: var(--danger);
 }
 
 .empty {
