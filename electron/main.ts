@@ -21,6 +21,10 @@ import type { CrosshairSpec, DisplayInfo, Settings } from '../shared/types';
 
 const isDev = Boolean(process.env.VITE_DEV_SERVER_URL);
 
+if (process.platform === 'win32') {
+  app.setAppUserModelId('com.crossforge.app');
+}
+
 let store: Store;
 let mainWindow: BrowserWindow | null = null;
 let overlayWindow: BrowserWindow | null = null;
@@ -287,7 +291,12 @@ function notifyHiddenToTray(): void {
   if (trayHintShown) return;
   trayHintShown = true;
   if (tray && !tray.isDestroyed() && process.platform === 'win32') {
-    tray.displayBalloon({ title: 'CrossForge', content: trayText().balloonBody, iconType: 'info' });
+    const iconPath = path.join(appRoot(), 'build', 'icon.png');
+    tray.displayBalloon({
+      icon: iconPath,
+      title: 'CrossForge',
+      content: trayText().balloonBody,
+    });
   }
 }
 
