@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { AppProvider, useApp } from './state/app';
+import { SquadProvider } from './state/squad';
 import { TitleBar } from './components/TitleBar';
 import { Rail } from './components/Rail';
 import { Header } from './components/Header';
@@ -55,7 +56,9 @@ function Shell() {
 export function App() {
   return (
     <AppProvider>
-      <Shell />
+      <SquadProvider>
+        <Shell />
+      </SquadProvider>
     </AppProvider>
   );
 }
