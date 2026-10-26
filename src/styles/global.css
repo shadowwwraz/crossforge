@@ -2453,3 +2453,315 @@ input[type='range'].slider:hover::-webkit-slider-thumb {
     grid-template-columns: 1fr;
   }
 }
+
+/* ------------------------------------------------------------------ Squad Drawer */
+
+.squad-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 990;
+  animation: squadFadeIn 0.15s ease-out;
+}
+
+.squad-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  background: var(--surface, #12141B);
+  border-left: 1px solid var(--line);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.5);
+  animation: squadSlideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes squadFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes squadSlideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.squad-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.squad-header-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(198, 255, 61, 0.12);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.squad-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+
+.squad-count {
+  font-size: 10.5px;
+  color: var(--text-mute);
+  font-family: var(--font-mono, monospace);
+}
+
+.squad-code-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(198, 255, 61, 0.08);
+  border: 1px solid rgba(198, 255, 61, 0.25);
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.squad-close-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.squad-close-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.squad-offer-banner {
+  margin: 10px 12px 0 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(139, 107, 255, 0.12);
+  border: 1px solid rgba(139, 107, 255, 0.3);
+  font-size: 11.5px;
+}
+
+.squad-offer-text {
+  color: var(--text);
+  font-weight: 550;
+  line-height: 1.4;
+}
+
+.squad-roster {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.squad-member-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--surface-subtle, rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--line);
+  transition: all 0.15s ease;
+}
+
+.squad-member-row:hover {
+  border-color: rgba(236, 233, 222, 0.15);
+  background: var(--surface-hover, rgba(255, 255, 255, 0.04));
+}
+
+.squad-member-self {
+  border-color: rgba(198, 255, 61, 0.2);
+  background: rgba(198, 255, 61, 0.03);
+}
+
+.squad-preview-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  background: #08080a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.squad-avatar-wrapper {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.squad-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.squad-status-dot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+  border: 1.5px solid var(--surface, #12141B);
+}
+
+.squad-player-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.squad-player-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.squad-player-crosshair {
+  font-size: 10px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+.squad-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.squad-action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.squad-action-btn:hover {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+
+.squad-self-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(198, 255, 61, 0.15);
+  color: var(--accent);
+}
+
+.squad-demo-notice {
+  margin: 0 12px 10px 12px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: rgba(139, 107, 255, 0.08);
+  border: 1px solid rgba(139, 107, 255, 0.2);
+}
+
+.squad-demo-notice p {
+  margin: 4px 0 0 0;
+  font-size: 10px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.squad-badge-pill {
+  display: inline-block;
+  background: #10B981;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+
+.squad-footer {
+  padding: 12px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--surface-subtle);
+}
+
+.squad-invite-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 12px;
+  font-weight: 650;
+  font-size: 12px;
+}
+
+.squad-header-pill {
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 5px;
+}
+
+.squad-toggle-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+

@@ -445,3 +445,18 @@ export const ShapeSquare = (p: IconProps) => (
     <rect x="4.5" y="4.5" width="15" height="15" rx="1" />
   </Svg>
 );
+
+export const Wand = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M15 4l-2 4 4 2-2-4z" />
+    <path d="m21.6 2.4-3.2 3.2M2 22l10-10" />
+    <path d="m9 7 1-2 1 2 2 1-2 1-1 2-1-2-2-1z" />
+  </Svg>
+);
+
+export const Send = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="m22 2-7 20-4-9-9-4Z" />
+    <path d="M22 2 11 13" />
+  </Svg>
+);

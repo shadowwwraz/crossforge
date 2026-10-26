@@ -23,6 +23,7 @@ export const en = {
   'common.name': 'Name',
   'common.size': 'Size',
   'common.none': 'None',
+  'common.loading': 'Connecting...',
   'common.remove': 'Remove',
   'common.duplicate': 'Duplicate',
   'common.saveFile': 'Save file…',
@@ -450,6 +451,7 @@ export const en = {
   'squad.membersCount': '{count} in squad',
   'squad.demoNotice': 'Demo squad active — click 🪄 to equip or ✈️ to send',
   'squad.connected': 'Connected to squad {code}',
+  'squad.online': 'Online',
 } as const;
 
 export type MessageKey = keyof typeof en;

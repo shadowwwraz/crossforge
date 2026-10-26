@@ -7,6 +7,8 @@ import { Header } from './components/Header';
 import { StatusBar } from './components/StatusBar';
 import { Toasts } from './components/Toasts';
 import { ImportModal, ShareModal } from './components/modals';
+import { SquadDrawer } from './components/SquadDrawer';
+import { JoinSquadModal } from './components/JoinSquadModal';
 import { Discover } from './pages/Discover';
 import { Browse } from './pages/Browse';
 import { Saved } from './pages/Saved';
@@ -49,6 +51,8 @@ function Shell() {
       <Toasts />
       <ShareModal />
       <ImportModal />
+      <SquadDrawer />
+      <JoinSquadModal />
     </div>
   );
 }

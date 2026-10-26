@@ -1,12 +1,14 @@
 import { useApp } from '../state/app';
+import { useSquad } from '../state/squad';
 import { navKey } from '../i18n';
-import { Moon, Share, Sun } from './Icons';
+import { Moon, Share, Sun, Users } from './Icons';
 import type { PageId } from '../../shared/types';
 
 const ORDER: PageId[] = ['discover', 'browse', 'saved', 'workshop', 'editor', 'keybinds', 'cursor', 'randomizer', 'settings'];
 
 export function Header() {
   const { page, t, state, toggleOverlay, setShareOpen, setSetting, lang, theme } = useApp();
+  const { toggleSquad, isOpen: squadOpen, members } = useSquad();
   const overlayOn = state.settings.overlayVisible;
   const index = String(ORDER.indexOf(page) + 1).padStart(2, '0');
 
@@ -52,9 +54,25 @@ export function Header() {
           <Share size={13} />
           {t('common.share')}
         </button>
-        <span className="avatar" style={{ background: 'var(--accent)', color: 'var(--on-accent)' }}>
-          S
-        </span>
+        <button
+          type="button"
+          className={`btn btn-sm squad-toggle-btn${squadOpen ? ' active' : ''}`}
+          onClick={toggleSquad}
+          title={t('squad.title')}
+        >
+          <Users size={13} />
+          {t('squad.button')}
+          <span className="squad-header-pill">{members.length}</span>
+        </button>
+        <button
+          type="button"
+          className="avatar"
+          style={{ background: 'var(--accent)', color: 'var(--on-accent)', cursor: 'pointer', border: 'none' }}
+          onClick={toggleSquad}
+          title={t('squad.title')}
+        >
+          Y
+        </button>
       </div>
     </header>
   );

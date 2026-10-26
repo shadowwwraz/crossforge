@@ -25,6 +25,7 @@ export const ru: Record<MessageKey, string> = {
   'common.name': 'Название',
   'common.size': 'Размер',
   'common.none': 'Нет',
+  'common.loading': 'Подключение...',
   'common.remove': 'Убрать',
   'common.duplicate': 'Дублировать',
   'common.saveFile': 'Сохранить файл…',
@@ -452,4 +453,5 @@ export const ru: Record<MessageKey, string> = {
   'squad.membersCount': '{count} в скваде',
   'squad.demoNotice': 'Активен демо-сквад — нажми 🪄 чтобы скопировать или ✈️ чтобы отправить',
   'squad.connected': 'Подключено к скваду {code}',
+  'squad.online': 'В сети',
 };
